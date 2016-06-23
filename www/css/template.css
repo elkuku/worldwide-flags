@@ -12,6 +12,14 @@ body {
     overflow-y: scroll;
 }
 
+#selectionContainer {
+    height: 150px;
+    overflow-y: scroll;
+    font-family: monospace;
+    border-bottom: 1px solid silver;
+    border-top: 1px solid silver;
+}
+
 .footer {
     position: absolute;
     bottom: 0;

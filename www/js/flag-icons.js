@@ -1,3 +1,5 @@
+var baseUri = window.location.href.split(/[?#]/)[0];
+
 $('#jstree').jstree({
     'plugins' : [ 'wholerow', 'checkbox', 'sort' ],
     'core' : {
@@ -16,12 +18,42 @@ $('#jstree').jstree({
 });
 
 $('#createit').click(function() {
-    var items = $('#jstree').jstree(true).get_selected(true);
-    items.forEach(function(item) {
-        // If the item has an icon, it's a directory...
-        if(!item.icon) {
-            console.log(item.id);
+    var selectedItems = $('#jstree').jstree(true).get_selected(true);
+    var container = $('#selectionContainer');
+    var errorMessage = $('#errorMessage');
+    container.html('');
+    errorMessage.html('');
+    var items = [];
 
+    $('#selectionMessage').html('You selected ' + selectedItems.length + ' items:<br />');
+
+    selectedItems.forEach(function(item) {
+        if(!item.icon) {
+            // If the item has an icon, it's a directory...
+            container.append(item.id + "<br />");
+            items.push(item.id);
+        }
+    });
+
+    var flagString = '"' + items.join('" "') + '"';
+
+    //$('#permalinkD').html(baseUri + '?flags="' + flagString);
+    $('#permalink').attr('href', baseUri + '?flags="' + flagString);
+
+    $.ajax({
+        url: baseUri,
+        data: {
+            flags: flagString,
+            action: 'build'
+        },
+        dataType: 'json',
+        success: function (results) {
+            console.log(results);
+            if(results.error) {
+                errorMessage.html(results.error);
+            } else {
+
+            }
         }
     });
 });
