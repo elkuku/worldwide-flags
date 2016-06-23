@@ -20,6 +20,18 @@ body {
     border-top: 1px solid silver;
 }
 
+#resultCss {
+    font-family: monospace;
+    border: 1px solid silver;
+    overflow-y: scroll;
+    height: 150px;
+}
+
+#resultImageContainer {
+    overflow: scroll;
+    height: 150px;
+}
+
 .footer {
     position: absolute;
     bottom: 0;

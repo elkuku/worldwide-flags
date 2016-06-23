@@ -41,18 +41,20 @@ $('#createit').click(function() {
     $('#permalink').attr('href', baseUri + '?flags="' + flagString);
 
     $.ajax({
+        method: 'post',
         url: baseUri,
         data: {
             flags: flagString,
             action: 'build'
         },
         dataType: 'json',
-        success: function (results) {
-            console.log(results);
-            if(results.error) {
-                errorMessage.html(results.error);
+        success: function (result) {
+            console.log(result);
+            if(result.error) {
+                errorMessage.html(result.error);
             } else {
-
+                $('#resultCss').html(result.css)
+                $("#resultImage").attr('src', 'data:image/png;base64,' + result.image);
             }
         }
     });

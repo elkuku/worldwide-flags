@@ -8,92 +8,144 @@
  */
 class MakeFlags
 {
-	private $baseDir = '';
+	private $flagDir = '';
 
-	public function __construct($basePath = '')
+	private $fileData = [];
+	private $fileList = [];
+
+	public $flagWidth = 16;
+	public $flagHeight = 10;
+	public $imagesPerRow = 50;
+
+	public function __construct($flagDir = '')
 	{
-		$this->baseDir = realpath($basePath ?: __DIR__ . '/../borderless_16x10');
+		$this->flagDir = realpath($flagDir ? : __DIR__ . '/../borderless_16x10');
 	}
 
-	public function create()
+	public function createAll()
 	{
-		$fileData = $this->fillArrayWithFileNodes(new DirectoryIterator($this->baseDir));
+		$fileData = $this->fillArrayWithFileNodes(new DirectoryIterator($this->flagDir));
 
 		ksort($fileData);
 
 		$fileList = [];
 
 		/* @var SplFileInfo object */
-		foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->baseDir)) as $name => $object)
+		foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->flagDir)) as $name => $object)
 		{
 			if ($object->isDir())
 			{
 				continue;
 			}
 
-			$fileList[] = str_replace($this->baseDir . '/', '', $name);
+			$this->fileList[] = str_replace($this->flagDir . '/', '', $name);
 		}
 
-		sort($fileList);
+		sort($this->fileList);
 
-		$flagWidth = 16;
-		$flagHeight = 10;
-		$imagesPerRow = 50;
-		$flags = ['-verbose'];
+		$this->createImage(__DIR__ . '/../www/img/flags.png', ['-verbose']);
+
+		file_put_contents(__DIR__ . '/../www/css/flags.css', implode("\n", $this->createCss()));
+
+//		file_put_contents(__DIR__ . '/../www/flags_roots.json', "[\n" . implode(",\n", $jsonRoots) . "\n]");
+//		file_put_contents(__DIR__ . '/../www/flags_children.json', "[\n" . implode(",\n", $jsonChildren) . "\n]");
+		file_put_contents(__DIR__ . '/../www/flags.json', "[\n" . implode(",\n", $this->createJson()) . "\n]");
+
+		return $this;
+	}
+
+	public function create($fileList, $resultImagePath, $resultCssPath)
+	{
+		$this->setFileList($fileList);
+
+		$this->createImage($resultImagePath);
+
+		file_put_contents($resultCssPath, implode("\n", $this->createCss()));
+
+		return $this;
+	}
+
+	/**
+	 * @param mixed $fileList string or array
+	 *
+	 * @return MakeFlags
+	 */
+	public function setFileList($fileList)
+	{
+		$this->fileList = is_array($fileList) ? $fileList : explode('" "', trim($fileList, '"'));
+
+		$this->imagesPerRow = sqrt(count($this->fileList));
+
+		return $this;
+	}
+
+	private function createCss()
+	{
+		$colCount = 0;
+		$rowCount = 0;
 
 		$cssLines = ['.flag {',
-			'	width: ' . $flagWidth . 'px !important;',
-			'	height: ' . $flagHeight . 'px !important;',
+			'	width: ' . $this->flagWidth . 'px !important;',
+			'	height: ' . $this->flagHeight . 'px !important;',
 			'	background:url(../img/flags.png) no-repeat',
 			'}',
 			''
 		];
 
-		$resultImageFile = __DIR__ . '/../www/img/flags.png';
-
-		// See: https://www.imagemagick.org/Usage/montage/
-		$command = sprintf(
-			'cd %s && montage %s -tile %sx -geometry +0+0 %s %s',
-			$this->baseDir,
-			'"' . implode('" "', $fileList) . '"',
-			$imagesPerRow,
-			implode(' ', $flags),
-			$resultImageFile
-		);
-
-		$colCount = 0;
-		$rowCount = 0;
-
-		foreach ($fileList as $fileName)
+		foreach ($this->fileList as $fileName)
 		{
 			$name = str_replace(['/', ' ', "'", '(', ')', ','], '-', $fileName);
 			$name = str_replace('.png', '', $name);
 
-			$xPos = $colCount ? '-' . $colCount * $flagWidth . 'px' : '0';
-			$yPos = $rowCount ? '-' . $rowCount * $flagHeight . 'px' : '0';
+			$xPos = $colCount ? '-' . $colCount * $this->flagWidth . 'px' : '0';
+			$yPos = $rowCount ? '-' . $rowCount * $this->flagHeight . 'px' : '0';
 
 			$cssLines[] = sprintf('.flag.flag-%s {background-position: %s %s}', $name, $xPos, $yPos);
 
 			$colCount++;
 
-			if ($colCount >= $imagesPerRow)
+			if ($colCount >= $this->imagesPerRow)
 			{
 				$colCount = 0;
 				$rowCount++;
 			}
 		}
 
+		return $cssLines;
+	}
+
+	private function createImage($resultImageFile, array $flags = [])
+	{
+		$fileList = '"' . implode('" "', $this->fileList) . '"';
+
+		// See: https://www.imagemagick.org/Usage/montage/
+		$command = sprintf(
+			'cd %s && montage %s -tile %sx -geometry +0+0 %s %s',
+			$this->flagDir,
+			$fileList,
+			$this->imagesPerRow,
+			implode(' ', $flags),
+			$resultImageFile
+		);
+
 		//echo "\n" . $command . "\n";
 
-		system($command, $ret);
+		$lastLine = system($command, $ret);
 
-		echo $ret;
-		echo "\n";
+		if ($ret)
+		{
+			echo $lastLine;
+		}
 
+		return $this;
+	}
+
+	private function createJson()
+	{
 		$jsonRoots = [];
 		$jsonChildren = [];
 
-		foreach ($fileData as $index => $items)
+		foreach ($this->fileData as $index => $items)
 		{
 			// Add a root dir
 			$jsonRoots[] = '{ "id" : "' . $index . '", "parent" : "#", "text" : "' . $index . '" }';
@@ -134,12 +186,7 @@ class MakeFlags
 			}
 		}
 
-		file_put_contents(__DIR__ . '/../www/css/flags.css', implode("\n", $cssLines));
-//		file_put_contents(__DIR__ . '/../www/flags_roots.json', "[\n" . implode(",\n", $jsonRoots) . "\n]");
-//		file_put_contents(__DIR__ . '/../www/flags_children.json', "[\n" . implode(",\n", $jsonChildren) . "\n]");
-		file_put_contents(__DIR__ . '/../www/flags.json', "[\n" . implode(",\n", array_merge($jsonRoots, $jsonChildren)) . "\n]");
-
-		return;
+		return array_merge($jsonRoots, $jsonChildren);
 	}
 
 	private function fillArrayWithFileNodes(DirectoryIterator $dir)
@@ -161,4 +208,7 @@ class MakeFlags
 	}
 }
 
-(new MakeFlags())->create();
+if ('cli' == php_sapi_name())
+{
+	(new MakeFlags())->createAll();
+}
