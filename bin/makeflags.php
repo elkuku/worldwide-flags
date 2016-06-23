@@ -128,7 +128,7 @@ class MakeFlags
 			$resultImageFile
 		);
 
-		//echo "\n" . $command . "\n";
+		echo "\n" . $command . "\n";
 
 		$lastLine = system($command, $ret);
 
