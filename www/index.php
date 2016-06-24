@@ -71,6 +71,7 @@ function getRequestVar($name)
 
 	<!-- Bootstrap core CSS -->
 	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/bootstrap-theme.min.css" rel="stylesheet">
 
 	<!-- Custom styles for this template -->
 	<link href="css/template.css" rel="stylesheet">
@@ -80,6 +81,27 @@ function getRequestVar($name)
 </head>
 
 <body>
+
+<div class="modal fade" id="pleaseWaitDialog" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Processing</h4>
+			</div>
+			<div class="modal-body">
+				<p>Please wait&hellip;</p>
+			</div>
+			<div class="modal-footer">
+				<div class="progress">
+					<div class="progress-bar progress-bar-danger progress-bar-striped active" role="progressbar"
+					     aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+						<span class="sr-only">Please wait&hellip;</span>
+					</div>
+				</div>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
 	<div class="container">
@@ -130,15 +152,14 @@ function getRequestVar($name)
 			<hr/>
 
 
-				<a class="btn btn-default" href="" id="permalink">Permalink</a>
-				Doesn't work yet :(
-				<div id="permalinkD"></div>
-				<p>
-					Note that you may also download the <b>complete collection</b>
-					<a href="img/flags.png">flags.png</a>
-					<a href="css/flags.css">flags.css</a>
-				</p>
-
+			<a class="btn btn-default" href="" id="permalink">Permalink</a>
+			Doesn't work yet :(
+			<div id="permalinkD"></div>
+			<p>
+				Note that you may also download the <b>complete collection</b>
+				<a href="img/flags.png">flags.png</a>
+				<a href="css/flags.css">flags.css</a>
+			</p>
 
 
 		</div>
@@ -167,6 +188,15 @@ function getRequestVar($name)
 <script src="js/bootstrap.min.js"></script>
 <script src="js/jstree/jstree.js"></script>
 <script src="js/flag-icons.js"></script>
-
+<script type="text/javascript">
+	jQuery(function ($) {
+		$(document).ajaxStop(function () {
+			$('#pleaseWaitDialog').modal('hide');
+		});
+		$(document).ajaxStart(function () {
+			$('#pleaseWaitDialog').modal();
+		});
+	});
+</script>
 </body>
 </html>
