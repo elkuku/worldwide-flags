@@ -15,7 +15,7 @@ switch (getRequestVar('action'))
 		// Do some hard coded filtering on file paths here
 		$flagList = preg_replace('{[^\w\s\'.\-\/"]}x', '', $flagList);
 
-		(new MakeFlags())
+		$flagsProcessedNum = (new MakeFlags())
 			->create($flagList, $imageFileName, $cssFileName);
 
 		// No more error producing codes below here !!!
@@ -23,9 +23,10 @@ switch (getRequestVar('action'))
 		$error = ob_get_clean();
 
 		$response          = new stdClass;
-		$response->message = $flagList;
+		$response->message = sprintf('%d Flag Images processed.', $flagsProcessedNum);
 		$response->error   = $error;
 		$response->css     = '';
+		$response->image   = '';
 
 		if (file_exists($cssFileName))
 		{
@@ -142,15 +143,14 @@ function getRequestVar($name)
 				</li>
 			</ol>
 			<button class="btn btn-success" id="createit">Create It</button>
-			<br/>
+			<div id="responseMessage" class="alert-success"></div>
+			<div id="errorMessage" class="alert-danger"></div>
 			<p>Please note that this is still</p>
 			<h2 style="color: red;">WIP !!</h2>
-			<div id="errorMessage"></div>
 			<div id="selectionMessage">You selected 0 items:</div>
 			<div id="selectionContainer"></div>
 
 			<hr/>
-
 
 			<a class="btn btn-default" href="" id="permalink">Permalink</a>
 			Doesn't work yet :(
@@ -169,7 +169,7 @@ function getRequestVar($name)
 				<img src="img/1x1.png" id="resultImage"/>
 			</div>
 			<h2>CSS Code</h2>
-			<pre id="resultCss"></pre>
+			<textarea id="resultCss"></textarea>
 		</div>
 	</div>
 </div><!-- /.container -->

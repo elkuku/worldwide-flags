@@ -21,11 +21,13 @@ $('#createit').click(function() {
     var selectedItems = $('#jstree').jstree(true).get_selected(true);
     var container = $('#selectionContainer');
     var errorMessage = $('#errorMessage');
+    var selectionMessage = $('#selectionMessage');
+    var responseMessage = $('#responseMessage');
     container.html('');
-    errorMessage.html('');
+    errorMessage.html('').removeClass('alert');
+    responseMessage.html('').removeClass('alert');
+    selectionMessage.html('');
     var items = [];
-
-    $('#selectionMessage').html('You selected ' + selectedItems.length + ' items:<br />');
 
     selectedItems.forEach(function(item) {
         if(!item.icon) {
@@ -34,6 +36,8 @@ $('#createit').click(function() {
             items.push(item.id);
         }
     });
+
+    selectionMessage.html('You selected ' + items.length + ' items:<br />');
 
     var flagString = '"' + items.join('" "') + '"';
 
@@ -51,9 +55,10 @@ $('#createit').click(function() {
         success: function (result) {
             console.log(result);
             if(result.error) {
-                errorMessage.html(result.error);
+                errorMessage.html(result.error).addClass('alert');
             } else {
-                $('#resultCss').html(result.css)
+                $('#responseMessage').html(result.message).addClass('alert');
+                $('#resultCss').html(result.css);
                 $("#resultImage").attr('src', 'data:image/png;base64,' + result.image);
             }
         }
