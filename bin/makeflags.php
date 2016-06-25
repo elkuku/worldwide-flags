@@ -62,7 +62,7 @@ class MakeFlags
 
 		file_put_contents($resultCssPath, implode("\n", $this->createCss()));
 
-		return $this;
+		return count($this->fileList);
 	}
 
 	/**
