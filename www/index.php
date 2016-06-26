@@ -1,59 +1,14 @@
 <?php
-switch (getRequestVar('action'))
+include 'code/Process.php';
+include '../bin/makeflags.php';
+
+$response = (new Process(__DIR__ . '/tmp'))->processCommand('action');
+
+if ($response)
 {
-	case 'build':
-		ob_start();
+	echo json_encode($response);
 
-		include '../bin/makeflags.php';
-
-		$tStamp        = time();
-		$cssFileName   = __DIR__ . '/tmp/flags' . $tStamp . '.css';
-		$imageFileName = __DIR__ . '/tmp/flags' . $tStamp . '.png';
-
-		$flagList = getRequestVar('flags');
-
-		// Do some hard coded filtering on file paths here
-		$flagList = preg_replace('{[^\w\s\'.\-\/"]}x', '', $flagList);
-
-		$flagsProcessedNum = (new MakeFlags())
-			->create($flagList, $imageFileName, $cssFileName);
-
-		// No more error producing codes below here !!!
-
-		$error = ob_get_clean();
-
-		$response          = new stdClass;
-		$response->message = sprintf('%d Flag Images processed.', $flagsProcessedNum);
-		$response->error   = $error;
-		$response->css     = '';
-		$response->image   = '';
-
-		if (file_exists($cssFileName))
-		{
-			$response->css = implode('', file($cssFileName));
-		}
-
-		if (file_exists($imageFileName))
-		{
-			$response->image = base64_encode(file_get_contents($imageFileName));
-		}
-
-		echo json_encode($response);
-
-		return;
-		break;
-}
-
-function getRequestVar($name)
-{
-	$value = isset($_GET[$name]) ? $_GET[$name] : '';
-
-	if (!$value)
-	{
-		$value = isset($_POST[$name]) ? $_POST[$name] : '';
-	}
-
-	return $value;
+	return;
 }
 
 ?>
@@ -142,11 +97,11 @@ function getRequestVar($name)
 					Copy the image and the CSS code from the right
 				</li>
 			</ol>
-			<button class="btn btn-success" id="createit">Create It</button>
+			<button class="btn btn-success" id="create-it">Create It</button>
 			<div id="responseMessage" class="alert-success"></div>
 			<div id="errorMessage" class="alert-danger"></div>
 			<p>Please note that this is still</p>
-			<h2 style="color: red;">WIP !!</h2>
+			<h3 style="color: red;">WIP !!</h3>
 			<div id="selectionMessage">You selected 0 items:</div>
 			<div id="selectionContainer"></div>
 
@@ -161,7 +116,6 @@ function getRequestVar($name)
 				<a href="css/flags.css">flags.css</a>
 			</p>
 
-
 		</div>
 		<div class="col-md-4">
 			<h2>CSS Sprite</h2>
@@ -169,7 +123,7 @@ function getRequestVar($name)
 				<img src="img/1x1.png" id="resultImage"/>
 			</div>
 			<h2>CSS Code</h2>
-			<textarea id="resultCss"></textarea>
+			<textarea id="resultCss" title="Result CSS"></textarea>
 		</div>
 	</div>
 </div><!-- /.container -->
@@ -190,11 +144,11 @@ function getRequestVar($name)
 <script src="js/flag-icons.js"></script>
 <script type="text/javascript">
 	jQuery(function ($) {
-		$(document).ajaxStop(function () {
-			$('#pleaseWaitDialog').modal('hide');
-		});
 		$(document).ajaxStart(function () {
 			$('#pleaseWaitDialog').modal();
+		});
+		$(document).ajaxStop(function () {
+			$('#pleaseWaitDialog').modal('hide');
 		});
 	});
 </script>

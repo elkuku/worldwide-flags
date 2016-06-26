@@ -17,17 +17,18 @@ $('#jstree').jstree({
     }
 });
 
-$('#createit').click(function() {
+$('#create-it').click(function() {
     var selectedItems = $('#jstree').jstree(true).get_selected(true);
     var container = $('#selectionContainer');
     var errorMessage = $('#errorMessage');
     var selectionMessage = $('#selectionMessage');
     var responseMessage = $('#responseMessage');
+    var items = [];
+
     container.html('');
     errorMessage.html('').removeClass('alert');
     responseMessage.html('').removeClass('alert');
     selectionMessage.html('');
-    var items = [];
 
     selectedItems.forEach(function(item) {
         if(!item.icon) {
