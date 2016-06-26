@@ -28,8 +28,6 @@ class MakeFlags
 
 		ksort($fileData);
 
-		$fileList = [];
-
 		/* @var SplFileInfo object */
 		foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->flagDir)) as $name => $object)
 		{
@@ -85,9 +83,9 @@ class MakeFlags
 		$rowCount = 0;
 
 		$cssLines = ['.flag {',
-			'	width: ' . $this->flagWidth . 'px !important;',
-			'	height: ' . $this->flagHeight . 'px !important;',
-			'	background:url(../img/flags.png) no-repeat',
+			'	width: ' . $this->flagWidth . 'px;',
+			'	height: ' . $this->flagHeight . 'px;',
+			'	background:url(flags.png) no-repeat',
 			'}',
 			''
 		];
