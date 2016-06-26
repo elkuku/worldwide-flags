@@ -124,6 +124,7 @@ if ($response)
 			</div>
 			<h2>CSS Code</h2>
 			<textarea id="resultCss" title="Result CSS"></textarea>
+			Download: <span id="resultZip"></span>
 		</div>
 	</div>
 </div><!-- /.container -->

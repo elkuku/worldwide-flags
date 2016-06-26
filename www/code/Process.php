@@ -82,7 +82,7 @@ class Process
 					{
 						$this->createZip($imageFileName, $cssFileName, $zipFileName);
 
-						$response->zipFile = $zipFileName;
+						$response->zipFile = (str_replace($this->baseDir . '/', '', $zipFileName));
 					}
 					catch (Exception $exception)
 					{

@@ -61,6 +61,7 @@ $('#create-it').click(function() {
                 $('#responseMessage').html(result.message).addClass('alert');
                 $('#resultCss').html(result.css);
                 $("#resultImage").attr('src', 'data:image/png;base64,' + result.image);
+                $('#resultZip').html('<a href="tmp/' + result.zipFile + '">flags.zip</a>');
             }
         }
     });
