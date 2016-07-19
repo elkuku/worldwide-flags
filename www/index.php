@@ -84,7 +84,12 @@ if ($response)
 </nav>
 
 <div class="container-fluid">
-	<div class="row">
+	<noscript>
+		<div class="well">
+			<div class="alert alert-danger">Please activate JavaScript!</div>
+		</div>
+	</noscript>
+	<div class="row" id="mainContent" style="display: none">
 		<div class="col-md-4" id="tree-container">
 			<div id="jstree"></div>
 		</div>
@@ -145,6 +150,7 @@ if ($response)
 <script src="js/flag-icons.js"></script>
 <script type="text/javascript">
 	jQuery(function ($) {
+		$('#mainContent').css('display', 'block');
 		$(document).ajaxStart(function () {
 			$('#pleaseWaitDialog').modal();
 		});

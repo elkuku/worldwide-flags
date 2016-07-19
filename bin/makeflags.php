@@ -44,9 +44,6 @@ class MakeFlags
 		$this->createImage(__DIR__ . '/../www/img/flags.png', ['-verbose']);
 
 		file_put_contents(__DIR__ . '/../www/css/flags.css', implode("\n", $this->createCss()));
-
-//		file_put_contents(__DIR__ . '/../www/flags_roots.json', "[\n" . implode(",\n", $jsonRoots) . "\n]");
-//		file_put_contents(__DIR__ . '/../www/flags_children.json', "[\n" . implode(",\n", $jsonChildren) . "\n]");
 		file_put_contents(__DIR__ . '/../www/flags.json', "[\n" . implode(",\n", $this->createJson()) . "\n]");
 
 		return $this;
@@ -112,6 +109,14 @@ class MakeFlags
 		return $cssLines;
 	}
 
+	/**
+	 * Create the combined image.
+	 *
+	 * @param   string  $resultImageFile  Path to result file.
+	 * @param   array   $flags            List with flag names.
+	 *
+	 * @return $this
+	 */
 	private function createImage($resultImageFile, array $flags = [])
 	{
 		$fileList = '"' . implode('" "', $this->fileList) . '"';
@@ -125,8 +130,6 @@ class MakeFlags
 			implode(' ', $flags),
 			$resultImageFile
 		);
-
-		//echo "\n" . $command . "\n";
 
 		$lastLine = system($command, $ret);
 
@@ -148,12 +151,12 @@ class MakeFlags
 			// Add a root dir
 			$jsonRoots[] = '{ "id" : "' . $index . '", "parent" : "#", "text" : "' . $index . '" }';
 
-			foreach ($items as $subdir => $item)
+			foreach ($items as $subDir => $item)
 			{
 				if (is_array($item))
 				{
 					// Add a sub dir
-					$jsonRoots[] = '{ "id" : "' . $index . '/' . $subdir . '", "parent" : "' . $index . '", "text" : "' . $subdir . '" }';
+					$jsonRoots[] = '{ "id" : "' . $index . '/' . $subDir . '", "parent" : "' . $index . '", "text" : "' . $subDir . '" }';
 
 					foreach ($item as $v)
 					{
@@ -162,9 +165,9 @@ class MakeFlags
 						$cssName = str_replace(' ', '-', $cName);
 						$jsonChildren[] = sprintf(
 							'{ "id" : "%s", "parent" : "%s", "text" : "%s", "icon": false }',
-							$index . '/' . $subdir .'/' . $v,
-							$index . '/' . $subdir,
-							"<img  src='img/1x1.png' class='flag flag-$index-$subdir-$cssName'></img> $cName"
+							$index . '/' . $subDir .'/' . $v,
+							$index . '/' . $subDir,
+							"<img  src='img/1x1.png' class='flag flag-$index-$subDir-$cssName'></img> $cName"
 						);
 					}
 				}
@@ -190,6 +193,7 @@ class MakeFlags
 	private function fillArrayWithFileNodes(DirectoryIterator $dir)
 	{
 		$data = array();
+
 		foreach ($dir as $node)
 		{
 			if ($node->isDir() && !$node->isDot())

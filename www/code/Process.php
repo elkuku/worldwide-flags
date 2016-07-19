@@ -28,6 +28,15 @@ class Process
 		{
 			case 'build':
 
+				$response = new stdClass;
+
+				$response->message = '';
+				$response->error   = '';
+				$response->css     = '';
+				$response->image   = '';
+				$response->zipFile = '';
+
+				$errors = [];
 				$tStamp = time();
 
 				$imageFileName = $this->baseDir . '/flags' . $tStamp . '.png';
@@ -39,24 +48,23 @@ class Process
 				// Do some hard coded filtering on file paths here
 				$flagList = preg_replace('{[^\w\s\'.\-\/"]}x', '', $flagList);
 
+				if (!trim($flagList, '""'))
+				{
+					// No flags to process
+					$response->error   = 'No flags to process :(';
+
+					return $response;
+				}
+
 				ob_start();
 
 				$flagsProcessedNum = (new MakeFlags())
 					->create($flagList, $imageFileName, $cssFileName);
 
-				// No more error producing codes below here !!!
-
 				$error = ob_get_clean();
-
-				$response = new stdClass;
 
 				$response->message = sprintf('%d Flag Images processed.', $flagsProcessedNum);
 				$response->error   = $error;
-				$response->css     = '';
-				$response->image   = '';
-				$response->zipFile = '';
-
-				$errors = [];
 
 				if (file_exists($cssFileName))
 				{
@@ -107,9 +115,6 @@ class Process
 
 		$zip->addFile($imageFile, 'flags.png');
 		$zip->addFile($cssFile, 'flags.css');
-
-		//echo "numfiles: " . $zip->numFiles . "\n";
-		//echo "status:" . $zip->status . "\n";
 
 		$zip->close();
 	}
